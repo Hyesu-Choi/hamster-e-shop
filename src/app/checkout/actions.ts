@@ -12,6 +12,7 @@ import {
   orders,
   products,
 } from "@/lib/db/schema";
+import { calculateShipping, getShippingConfig } from "@/lib/shipping";
 
 const schema = z.object({
   shippingName: z.string().min(1, "받는 분 이름을 입력하세요").max(50),
@@ -50,6 +51,7 @@ export async function placeOrder(
   }
 
   let createdOrderId: string | null = null;
+  const shippingConfig = await getShippingConfig();
 
   try {
     await db.transaction(async (tx) => {
@@ -76,16 +78,20 @@ export async function placeOrder(
         }
       }
 
-      const total = items.reduce(
+      const itemsKrw = items.reduce(
         (sum, i) => sum + i.priceKrw * i.quantity,
         0,
       );
+      const shippingKrw = calculateShipping(itemsKrw, shippingConfig);
+      const totalKrw = itemsKrw + shippingKrw;
 
       const [order] = await tx
         .insert(orders)
         .values({
           userId: user.id,
-          totalKrw: total,
+          itemsKrw,
+          shippingKrw,
+          totalKrw,
           status: "pending",
           shippingName: parsed.data.shippingName,
           shippingPhone: parsed.data.shippingPhone,

@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getCartItems } from "@/lib/db/queries";
 import { formatKrw } from "@/lib/format";
+import { calculateShipping, getShippingConfig } from "@/lib/shipping";
 import { removeFromCart, updateCartQuantity } from "./actions";
 
 export const metadata = {
@@ -20,6 +21,9 @@ export default async function CartPage() {
     (sum, item) => sum + item.product.priceKrw * item.quantity,
     0,
   );
+  const shippingConfig = await getShippingConfig();
+  const shippingKrw = calculateShipping(subtotal, shippingConfig);
+  const total = subtotal + shippingKrw;
 
   if (items.length === 0) {
     return (
@@ -139,12 +143,20 @@ export default async function CartPage() {
             </div>
             <div className="text-muted-foreground flex justify-between text-sm">
               <span>배송비</span>
-              <span>주문 시 계산</span>
+              <span>
+                {shippingKrw === 0 ? "무료" : formatKrw(shippingKrw)}
+              </span>
             </div>
+            {subtotal > 0 && shippingKrw > 0 && (
+              <p className="text-muted-foreground text-xs">
+                {formatKrw(shippingConfig.freeThresholdKrw - subtotal)} 더 담으면
+                무료배송
+              </p>
+            )}
             <hr />
             <div className="flex justify-between font-semibold">
               <span>예상 결제 금액</span>
-              <span>{formatKrw(subtotal)}</span>
+              <span>{formatKrw(total)}</span>
             </div>
             <Button
               className="w-full"

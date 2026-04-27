@@ -85,6 +85,8 @@ export const orders = pgTable("orders", {
     .notNull()
     .references(() => users.id, { onDelete: "restrict" }),
   status: orderStatus().notNull().default("pending"),
+  itemsKrw: integer().notNull().default(0),
+  shippingKrw: integer().notNull().default(0),
   totalKrw: integer().notNull(),
   shippingName: text().notNull(),
   shippingPhone: text().notNull(),
@@ -100,6 +102,12 @@ export const notices = pgTable("notices", {
   isPinned: boolean().notNull().default(false),
   isPublished: boolean().notNull().default(true),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});
+
+export const settings = pgTable("settings", {
+  key: text().primaryKey(),
+  value: text().notNull(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 

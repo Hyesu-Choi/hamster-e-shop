@@ -103,6 +103,19 @@ export default async function AdminOrderDetailPage({
             ))}
           </ul>
           <hr className="my-4" />
+          <div className="text-muted-foreground flex justify-between text-sm">
+            <span>상품 합계</span>
+            <span>{formatKrw(order.itemsKrw || order.totalKrw)}</span>
+          </div>
+          <div className="text-muted-foreground flex justify-between text-sm">
+            <span>배송비</span>
+            <span>
+              {order.shippingKrw === 0
+                ? "무료"
+                : formatKrw(order.shippingKrw)}
+            </span>
+          </div>
+          <hr className="my-2" />
           <div className="flex justify-between font-semibold">
             <span>합계</span>
             <span>{formatKrw(order.totalKrw)}</span>

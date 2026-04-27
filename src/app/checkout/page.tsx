@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getCartItems } from "@/lib/db/queries";
 import { formatKrw } from "@/lib/format";
+import { calculateShipping, getShippingConfig } from "@/lib/shipping";
 import { CheckoutForm } from "./checkout-form";
 
 export const metadata = {
@@ -22,6 +23,9 @@ export default async function CheckoutPage() {
     (sum, i) => sum + i.product.priceKrw * i.quantity,
     0,
   );
+  const shippingConfig = await getShippingConfig();
+  const shippingKrw = calculateShipping(subtotal, shippingConfig);
+  const total = subtotal + shippingKrw;
 
   return (
     <main className="mx-auto grid max-w-5xl flex-1 gap-8 px-6 py-10 lg:grid-cols-[1fr_360px]">
@@ -52,9 +56,18 @@ export default async function CheckoutPage() {
               ))}
             </ul>
             <hr />
-            <div className="flex justify-between font-semibold">
-              <span>합계</span>
+            <div className="text-muted-foreground flex justify-between text-sm">
+              <span>상품 합계</span>
               <span>{formatKrw(subtotal)}</span>
+            </div>
+            <div className="text-muted-foreground flex justify-between text-sm">
+              <span>배송비</span>
+              <span>{shippingKrw === 0 ? "무료" : formatKrw(shippingKrw)}</span>
+            </div>
+            <hr />
+            <div className="flex justify-between font-semibold">
+              <span>총 결제 금액</span>
+              <span>{formatKrw(total)}</span>
             </div>
             <Button
               variant="outline"

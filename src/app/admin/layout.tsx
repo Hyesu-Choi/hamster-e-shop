@@ -48,6 +48,12 @@ export default async function AdminLayout({
           >
             공지사항
           </Link>
+          <Link
+            href="/admin/settings"
+            className="hover:bg-muted block rounded px-3 py-2"
+          >
+            운영 설정
+          </Link>
         </nav>
       </aside>
       <div className="min-w-0 flex-1">{children}</div>
