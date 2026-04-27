@@ -1,6 +1,7 @@
 import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { db } from "./index";
 import {
+  cancellationRequests,
   cartItems,
   categories,
   notices,
@@ -8,6 +9,7 @@ import {
   orders,
   productImages,
   products,
+  users,
 } from "./schema";
 
 export async function getCategories() {
@@ -124,6 +126,40 @@ export async function getUserOrders(userId: string) {
     .from(orders)
     .where(eq(orders.userId, userId))
     .orderBy(desc(orders.createdAt));
+}
+
+export async function getActiveCancellationRequest(orderId: string) {
+  const [row] = await db
+    .select()
+    .from(cancellationRequests)
+    .where(
+      and(
+        eq(cancellationRequests.orderId, orderId),
+        eq(cancellationRequests.status, "requested"),
+      ),
+    )
+    .orderBy(desc(cancellationRequests.createdAt))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function getCancellationQueue() {
+  return db
+    .select({
+      id: cancellationRequests.id,
+      orderId: cancellationRequests.orderId,
+      reason: cancellationRequests.reason,
+      status: cancellationRequests.status,
+      createdAt: cancellationRequests.createdAt,
+      buyerEmail: users.email,
+      orderTotal: orders.totalKrw,
+      orderStatus: orders.status,
+    })
+    .from(cancellationRequests)
+    .leftJoin(orders, eq(cancellationRequests.orderId, orders.id))
+    .leftJoin(users, eq(cancellationRequests.requestedBy, users.id))
+    .where(eq(cancellationRequests.status, "requested"))
+    .orderBy(desc(cancellationRequests.createdAt));
 }
 
 export async function getOrderById(orderId: string, userId?: string) {

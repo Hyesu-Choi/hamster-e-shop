@@ -2,9 +2,16 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { getOrderById } from "@/lib/db/queries";
+import {
+  getActiveCancellationRequest,
+  getOrderById,
+} from "@/lib/db/queries";
 import { formatKrw } from "@/lib/format";
 import { ORDER_STATUS_LABEL, statusBadgeClass } from "@/lib/order-status";
+import {
+  CancelPendingButton,
+  RequestCancellationForm,
+} from "./cancel-controls";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +37,11 @@ export default async function OrderDetailPage({
   const result = await getOrderById(id, user.isAdmin ? undefined : user.id);
   if (!result) notFound();
   const { order, items } = result;
+  const isOwner = order.userId === user.id;
+  const activeCancellation =
+    isOwner && (order.status === "paid")
+      ? await getActiveCancellationRequest(order.id)
+      : null;
 
   return (
     <main className="mx-auto max-w-3xl flex-1 px-6 py-10">
@@ -114,6 +126,37 @@ export default async function OrderDetailPage({
           </div>
         </CardContent>
       </Card>
+
+      {isOwner && order.status === "pending" && (
+        <Card className="mb-4 border-destructive/30">
+          <CardContent className="flex items-center justify-between gap-4 p-6">
+            <div>
+              <p className="font-semibold">결제 대기 주문</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                결제 전이라 즉시 취소할 수 있어요. 재고는 자동 복구됩니다.
+              </p>
+            </div>
+            <CancelPendingButton orderId={order.id} />
+          </CardContent>
+        </Card>
+      )}
+
+      {isOwner && order.status === "paid" && (
+        <Card className="mb-4">
+          <CardContent className="space-y-3 p-6">
+            <div>
+              <p className="font-semibold">결제 완료 주문</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                결제가 끝났기 때문에 어드민 승인 후 환불 처리됩니다.
+              </p>
+            </div>
+            <RequestCancellationForm
+              orderId={order.id}
+              alreadyRequested={!!activeCancellation}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardContent className="p-6">

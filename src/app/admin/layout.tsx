@@ -43,6 +43,12 @@ export default async function AdminLayout({
             주문
           </Link>
           <Link
+            href="/admin/cancellations"
+            className="hover:bg-muted block rounded px-3 py-2"
+          >
+            취소 요청
+          </Link>
+          <Link
             href="/admin/notices"
             className="hover:bg-muted block rounded px-3 py-2"
           >

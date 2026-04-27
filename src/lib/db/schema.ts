@@ -124,6 +124,27 @@ export const orderItems = pgTable("order_items", {
   quantity: integer().notNull(),
 });
 
+export const cancellationStatus = pgEnum("cancellation_status", [
+  "requested",
+  "approved",
+  "rejected",
+]);
+
+export const cancellationRequests = pgTable("cancellation_requests", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid()
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  requestedBy: uuid()
+    .notNull()
+    .references(() => users.id, { onDelete: "restrict" }),
+  reason: text().notNull(),
+  status: cancellationStatus().notNull().default("requested"),
+  adminNote: text(),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  resolvedAt: timestamp({ withTimezone: true }),
+});
+
 export const productsRelations = relations(products, ({ one }) => ({
   category: one(categories, {
     fields: [products.categoryId],
