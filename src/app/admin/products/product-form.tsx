@@ -14,6 +14,7 @@ export type ProductDefaults = {
   name?: string;
   description?: string | null;
   priceKrw?: number;
+  originalPriceKrw?: number | null;
   stock?: number;
   imageUrl?: string | null;
   categoryId?: string | null;
@@ -65,7 +66,7 @@ export function ProductForm({
       </div>
       <div className="grid grid-cols-2 gap-4">
         <Field
-          label="가격 (원)"
+          label="판매가 (원)"
           name="priceKrw"
           type="number"
           min={0}
@@ -74,15 +75,23 @@ export function ProductForm({
           required
         />
         <Field
-          label="재고"
-          name="stock"
+          label="정가 (선택, 비우면 할인 표시 없음)"
+          name="originalPriceKrw"
           type="number"
           min={0}
-          defaultValue={defaults?.stock ?? 0}
-          error={state.fieldErrors?.stock}
-          required
+          defaultValue={defaults?.originalPriceKrw ?? ""}
+          error={state.fieldErrors?.originalPriceKrw}
         />
       </div>
+      <Field
+        label="재고"
+        name="stock"
+        type="number"
+        min={0}
+        defaultValue={defaults?.stock ?? 0}
+        error={state.fieldErrors?.stock}
+        required
+      />
       <ImageUploadField defaultValue={defaults?.imageUrl} />
       <div className="space-y-2">
         <Label htmlFor="categoryId">카테고리</Label>

@@ -19,6 +19,7 @@ export type ProductCardProps = {
   slug: string;
   name: string;
   priceKrw: number;
+  originalPriceKrw?: number | null;
   stock: number;
   imageUrl: string | null;
   categorySlug?: string | null;
@@ -28,12 +29,18 @@ export function ProductCard({
   slug,
   name,
   priceKrw,
+  originalPriceKrw,
   stock,
   imageUrl,
   categorySlug,
 }: ProductCardProps) {
   const soldOut = stock <= 0;
   const lowStock = !soldOut && stock <= 5;
+  const onSale =
+    originalPriceKrw != null && originalPriceKrw > priceKrw;
+  const discountPct = onSale
+    ? Math.round(((originalPriceKrw - priceKrw) / originalPriceKrw) * 100)
+    : 0;
   const gradient = categoryGradient[categorySlug ?? ""] ?? "from-muted to-muted";
 
   return (
@@ -68,12 +75,28 @@ export function ProductCard({
             재고 {stock}개
           </span>
         )}
+        {onSale && !soldOut && (
+          <span className="absolute top-3 right-3 rounded-full bg-rose-500 px-2.5 py-1 text-[11px] font-bold text-white">
+            {discountPct}%
+          </span>
+        )}
       </div>
       <div className="space-y-1.5 p-4">
         <h3 className="line-clamp-2 min-h-[2.5em] text-sm font-medium leading-snug">
           {name}
         </h3>
-        <p className="text-base font-bold">{formatKrw(priceKrw)}</p>
+        {onSale ? (
+          <div className="flex items-baseline gap-2">
+            <span className="text-rose-600 text-base font-bold">
+              {formatKrw(priceKrw)}
+            </span>
+            <span className="text-muted-foreground text-xs line-through">
+              {formatKrw(originalPriceKrw!)}
+            </span>
+          </div>
+        ) : (
+          <p className="text-base font-bold">{formatKrw(priceKrw)}</p>
+        )}
       </div>
     </Link>
   );

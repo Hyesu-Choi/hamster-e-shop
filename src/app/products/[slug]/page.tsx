@@ -102,9 +102,29 @@ export default async function ProductDetailPage({
           <h1 className="mt-2 text-3xl font-bold leading-tight">
             {product.name}
           </h1>
-          <p className="text-primary mt-4 text-3xl font-bold">
-            {formatKrw(product.priceKrw)}
-          </p>
+          {product.originalPriceKrw &&
+          product.originalPriceKrw > product.priceKrw ? (
+            <div className="mt-4 flex items-baseline gap-3">
+              <span className="rounded-full bg-rose-500 px-2.5 py-1 text-xs font-bold text-white">
+                {Math.round(
+                  ((product.originalPriceKrw - product.priceKrw) /
+                    product.originalPriceKrw) *
+                    100,
+                )}
+                %
+              </span>
+              <span className="text-muted-foreground text-base line-through">
+                {formatKrw(product.originalPriceKrw)}
+              </span>
+              <span className="text-rose-600 text-3xl font-bold">
+                {formatKrw(product.priceKrw)}
+              </span>
+            </div>
+          ) : (
+            <p className="text-primary mt-4 text-3xl font-bold">
+              {formatKrw(product.priceKrw)}
+            </p>
+          )}
 
           {product.description && (
             <p className="text-muted-foreground mt-6 leading-relaxed">

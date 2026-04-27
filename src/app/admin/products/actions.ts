@@ -43,19 +43,31 @@ export async function uploadProductImage(
   return { url: data.publicUrl };
 }
 
-const productSchema = z.object({
-  slug: z
-    .string()
-    .min(1, "슬러그를 입력하세요")
-    .regex(/^[a-z0-9-]+$/, "영문 소문자, 숫자, 하이픈만 가능"),
-  name: z.string().min(1, "상품명을 입력하세요").max(200),
-  description: z.string().max(2000).optional(),
-  priceKrw: z.coerce.number().int().min(0),
-  stock: z.coerce.number().int().min(0),
-  imageUrl: z.string().optional(),
-  categoryId: z.uuid().nullable().optional(),
-  isPublished: z.coerce.boolean().default(true),
-});
+const productSchema = z
+  .object({
+    slug: z
+      .string()
+      .min(1, "슬러그를 입력하세요")
+      .regex(/^[a-z0-9-]+$/, "영문 소문자, 숫자, 하이픈만 가능"),
+    name: z.string().min(1, "상품명을 입력하세요").max(200),
+    description: z.string().max(2000).optional(),
+    priceKrw: z.coerce.number().int().min(0),
+    originalPriceKrw: z.coerce.number().int().min(0).nullable().optional(),
+    stock: z.coerce.number().int().min(0),
+    imageUrl: z.string().optional(),
+    categoryId: z.uuid().nullable().optional(),
+    isPublished: z.coerce.boolean().default(true),
+  })
+  .refine(
+    (d) =>
+      d.originalPriceKrw == null ||
+      d.originalPriceKrw === 0 ||
+      d.originalPriceKrw > d.priceKrw,
+    {
+      message: "정가는 판매가보다 커야 합니다",
+      path: ["originalPriceKrw"],
+    },
+  );
 
 export type ProductFormState = {
   error?: string;
@@ -67,11 +79,13 @@ type ParseResult =
   | { ok: false; state: ProductFormState };
 
 function parseForm(formData: FormData): ParseResult {
+  const original = formData.get("originalPriceKrw")?.toString();
   const raw = {
     slug: formData.get("slug")?.toString() ?? "",
     name: formData.get("name")?.toString() ?? "",
     description: formData.get("description")?.toString() || undefined,
     priceKrw: formData.get("priceKrw"),
+    originalPriceKrw: original && original.length > 0 ? original : null,
     stock: formData.get("stock"),
     imageUrl: formData.get("imageUrl")?.toString() || undefined,
     categoryId: formData.get("categoryId")?.toString() || null,
@@ -103,6 +117,7 @@ export async function createProduct(
       slug: data.slug,
       name: data.name,
       priceKrw: data.priceKrw,
+      originalPriceKrw: data.originalPriceKrw || null,
       stock: data.stock,
       isPublished: data.isPublished,
       categoryId: data.categoryId || null,
@@ -139,6 +154,7 @@ export async function updateProduct(
         slug: data.slug,
         name: data.name,
         priceKrw: data.priceKrw,
+        originalPriceKrw: data.originalPriceKrw || null,
         stock: data.stock,
         isPublished: data.isPublished,
         categoryId: data.categoryId || null,
