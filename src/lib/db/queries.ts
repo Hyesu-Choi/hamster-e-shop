@@ -1,4 +1,4 @@
-import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql, type SQL } from "drizzle-orm";
 import { db } from "./index";
 import {
   cancellationRequests,
@@ -21,7 +21,30 @@ export type ProductFilter = {
   q?: string;
 };
 
-export async function getProducts(filter: ProductFilter = {}) {
+export type ProductCursor = { createdAt: string; id: string };
+
+export type ProductListItem = {
+  id: string;
+  slug: string;
+  name: string;
+  priceKrw: number;
+  originalPriceKrw: number | null;
+  stock: number;
+  imageUrl: string | null;
+  categorySlug: string | null;
+  createdAt: Date;
+};
+
+export type ProductPage = {
+  items: ProductListItem[];
+  nextCursor: ProductCursor | null;
+};
+
+export async function getProducts(
+  filter: ProductFilter = {},
+  pagination?: { cursor?: ProductCursor | null; limit?: number },
+): Promise<ProductPage> {
+  const limit = Math.min(Math.max(pagination?.limit ?? 12, 1), 48);
   const conditions: SQL[] = [eq(products.isPublished, true)];
 
   if (filter.category) {
@@ -37,7 +60,14 @@ export async function getProducts(filter: ProductFilter = {}) {
     if (matchTerm) conditions.push(matchTerm);
   }
 
-  return db
+  if (pagination?.cursor) {
+    const c = pagination.cursor;
+    conditions.push(
+      sql`(${products.createdAt}, ${products.id}) < (${new Date(c.createdAt)}, ${c.id})`,
+    );
+  }
+
+  const rows = await db
     .select({
       id: products.id,
       slug: products.slug,
@@ -47,11 +77,23 @@ export async function getProducts(filter: ProductFilter = {}) {
       stock: products.stock,
       imageUrl: products.imageUrl,
       categorySlug: categories.slug,
+      createdAt: products.createdAt,
     })
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id))
     .where(and(...conditions))
-    .orderBy(desc(products.createdAt));
+    .orderBy(desc(products.createdAt), desc(products.id))
+    .limit(limit + 1);
+
+  const hasMore = rows.length > limit;
+  const items = hasMore ? rows.slice(0, limit) : rows;
+  const last = items[items.length - 1];
+  const nextCursor: ProductCursor | null =
+    hasMore && last
+      ? { createdAt: last.createdAt.toISOString(), id: last.id }
+      : null;
+
+  return { items, nextCursor };
 }
 
 export async function getFeaturedProducts(limit = 8) {

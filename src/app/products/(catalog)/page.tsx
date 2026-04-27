@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ProductCard } from "@/components/product-card";
 import { getProducts } from "@/lib/db/queries";
+import { ProductsInfiniteList } from "./products-infinite-list";
 
 type SearchParams = Promise<{ category?: string; q?: string }>;
+
+const PAGE_SIZE = 12;
 
 export default async function ProductsPage({
   searchParams,
@@ -10,8 +12,10 @@ export default async function ProductsPage({
   searchParams: SearchParams;
 }) {
   const { category, q } = await searchParams;
-  const items = await getProducts({ category, q });
+  const filter = { category, q };
+  const { items, nextCursor } = await getProducts(filter, { limit: PAGE_SIZE });
   const isSearching = !!q?.trim();
+  const filterKey = `${category ?? ""}|${q ?? ""}`;
 
   return (
     <section className="min-h-[60vh]">
@@ -19,15 +23,10 @@ export default async function ProductsPage({
         {isSearching ? (
           <>
             <span className="text-foreground font-medium">{q}</span>
-            {" "}검색 결과 {" "}
-            <span className="text-foreground font-medium">{items.length}</span>개
+            {" "}검색 결과
           </>
         ) : (
-          <>
-            총{" "}
-            <span className="text-foreground font-medium">{items.length}</span>
-            개
-          </>
+          <>최근 등록 순</>
         )}
       </p>
 
@@ -47,11 +46,12 @@ export default async function ProductsPage({
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {items.map((p) => (
-            <ProductCard key={p.id} {...p} />
-          ))}
-        </div>
+        <ProductsInfiniteList
+          initialItems={items}
+          initialCursor={nextCursor}
+          filter={filter}
+          filterKey={filterKey}
+        />
       )}
     </section>
   );
