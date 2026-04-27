@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/add-to-cart-form";
+import { getCurrentUser } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/db/queries";
 import { formatKrw } from "@/lib/format";
 
@@ -36,7 +37,10 @@ export default async function ProductDetailPage({
   params: Params;
 }) {
   const { slug } = await params;
-  const product = await getProductBySlug(slug);
+  const [product, user] = await Promise.all([
+    getProductBySlug(slug),
+    getCurrentUser(),
+  ]);
 
   if (!product) notFound();
 
@@ -123,7 +127,11 @@ export default async function ProductDetailPage({
           </div>
 
           <div className="mt-auto pt-10">
-            <AddToCartForm productId={product.id} stock={product.stock} />
+            <AddToCartForm
+              productId={product.id}
+              stock={product.stock}
+              isLoggedIn={!!user}
+            />
           </div>
         </div>
       </div>

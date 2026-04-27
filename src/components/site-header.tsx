@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ShoppingBag, User } from "lucide-react";
 import { getCartCount } from "@/app/cart/actions";
 import { logout } from "@/app/login/actions";
+import { AnonCartCountBadge } from "@/components/cart-count-badge";
+import { CartMerger } from "@/components/cart-merger";
 import { MobileNav, type MobileNavItem } from "@/components/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
@@ -19,7 +21,9 @@ export async function SiteHeader() {
   ];
 
   return (
-    <header className="bg-background/85 sticky top-0 z-40 border-b backdrop-blur-md">
+    <>
+      <CartMerger isLoggedIn={!!user} />
+      <header className="bg-background/85 sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
         <div className="flex items-center gap-2">
           <MobileNav items={navItems} isLoggedIn={!!user} />
@@ -49,10 +53,14 @@ export async function SiteHeader() {
             className="hover:bg-muted relative inline-flex size-9 items-center justify-center rounded-full transition"
           >
             <ShoppingBag className="size-4.5" />
-            {cartCount > 0 && (
-              <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[10px] font-semibold">
-                {cartCount}
-              </span>
+            {user ? (
+              cartCount > 0 && (
+                <span className="bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[10px] font-semibold">
+                  {cartCount}
+                </span>
+              )
+            ) : (
+              <AnonCartCountBadge />
             )}
           </Link>
 
@@ -74,6 +82,7 @@ export async function SiteHeader() {
           )}
         </div>
       </div>
-    </header>
+      </header>
+    </>
   );
 }
