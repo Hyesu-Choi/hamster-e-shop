@@ -1,5 +1,6 @@
 import { getCategories } from "@/lib/db/queries";
 import { CategoryTabs } from "./category-tabs";
+import { ProductSearch } from "./product-search";
 
 export const metadata = {
   title: "상품 | mochiHam",
@@ -20,6 +21,8 @@ export default async function CatalogLayout({
           햄스터 용품을 카테고리별로 만나보세요
         </p>
       </header>
+
+      <ProductSearch />
 
       <CategoryTabs categories={categories} />
 

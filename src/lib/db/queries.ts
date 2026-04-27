@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, ilike, or, type SQL } from "drizzle-orm";
 import { db } from "./index";
 import {
   cartItems,
@@ -13,13 +13,26 @@ export async function getCategories() {
   return db.select().from(categories).orderBy(categories.name);
 }
 
-export async function getProducts(categorySlug?: string) {
-  const where = categorySlug
-    ? and(
-        eq(products.isPublished, true),
-        eq(categories.slug, categorySlug),
-      )
-    : eq(products.isPublished, true);
+export type ProductFilter = {
+  category?: string;
+  q?: string;
+};
+
+export async function getProducts(filter: ProductFilter = {}) {
+  const conditions: SQL[] = [eq(products.isPublished, true)];
+
+  if (filter.category) {
+    conditions.push(eq(categories.slug, filter.category));
+  }
+
+  if (filter.q && filter.q.trim().length > 0) {
+    const term = `%${filter.q.trim()}%`;
+    const matchTerm = or(
+      ilike(products.name, term),
+      ilike(products.description, term),
+    );
+    if (matchTerm) conditions.push(matchTerm);
+  }
 
   return db
     .select({
@@ -33,7 +46,7 @@ export async function getProducts(categorySlug?: string) {
     })
     .from(products)
     .leftJoin(categories, eq(products.categoryId, categories.id))
-    .where(where)
+    .where(and(...conditions))
     .orderBy(desc(products.createdAt));
 }
 
