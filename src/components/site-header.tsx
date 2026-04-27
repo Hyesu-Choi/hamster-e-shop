@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ShoppingBag, User } from "lucide-react";
 import { getCartCount } from "@/app/cart/actions";
 import { logout } from "@/app/login/actions";
+import { MobileNav, type MobileNavItem } from "@/components/mobile-nav";
 import { Button } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -9,50 +10,36 @@ export async function SiteHeader() {
   const user = await getCurrentUser();
   const cartCount = user ? await getCartCount(user.id) : 0;
 
+  const navItems: MobileNavItem[] = [
+    { href: "/products", label: "상품" },
+    { href: "/notices", label: "공지사항" },
+    { href: "/about", label: "소개" },
+    ...(user ? [{ href: "/orders", label: "주문내역" }] : []),
+    ...(user?.isAdmin ? [{ href: "/admin", label: "어드민" }] : []),
+  ];
+
   return (
     <header className="bg-background/85 sticky top-0 z-40 border-b backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-lg font-extrabold tracking-tight">
-            mochiHam
-          </span>
-        </Link>
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-2 px-4 sm:px-6">
+        <div className="flex items-center gap-2">
+          <MobileNav items={navItems} isLoggedIn={!!user} />
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-lg font-extrabold tracking-tight">
+              mochiHam
+            </span>
+          </Link>
+        </div>
 
         <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
-          <Link
-            href="/products"
-            className="hover:text-primary text-foreground/80 transition"
-          >
-            상품
-          </Link>
-          {user && (
+          {navItems.map((item) => (
             <Link
-              href="/orders"
+              key={item.href}
+              href={item.href}
               className="hover:text-primary text-foreground/80 transition"
             >
-              주문내역
+              {item.label}
             </Link>
-          )}
-          <Link
-            href="/notices"
-            className="hover:text-primary text-foreground/80 transition"
-          >
-            공지사항
-          </Link>
-          <Link
-            href="/about"
-            className="hover:text-primary text-foreground/80 transition"
-          >
-            소개
-          </Link>
-          {user?.isAdmin && (
-            <Link
-              href="/admin"
-              className="hover:text-primary text-foreground/80 transition"
-            >
-              어드민
-            </Link>
-          )}
+          ))}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -70,7 +57,7 @@ export async function SiteHeader() {
           </Link>
 
           {user ? (
-            <form action={logout}>
+            <form action={logout} className="hidden md:block">
               <Button type="submit" size="sm" variant="ghost">
                 로그아웃
               </Button>
@@ -78,6 +65,7 @@ export async function SiteHeader() {
           ) : (
             <Button
               size="sm"
+              className="hidden md:inline-flex"
               nativeButton={false}
               render={<Link href="/login" />}
             >
