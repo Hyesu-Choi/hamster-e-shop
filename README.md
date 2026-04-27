@@ -1,36 +1,90 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 햄스터 샵 (hamster-e-shop)
 
-## Getting Started
+햄스터 용품 풀스택 쇼핑몰 (MVP).
 
-First, run the development server:
+## 기술 스택
+
+- **Next.js 16** (App Router, Turbopack) + **TypeScript**
+- **Tailwind CSS v4** + **shadcn/ui** (base-nova preset, Base UI)
+- **Drizzle ORM** + **PostgreSQL** (Supabase)
+- **Supabase Auth + Storage** + **Auth.js v5**
+- 배포: **Vercel**
+
+## 시작하기
+
+### 1. 환경 변수 설정
+
+```bash
+cp .env.example .env.local
+```
+
+`.env.local`을 열어 Supabase 프로젝트 값으로 채워주세요.
+
+- `DATABASE_URL` — Supabase Dashboard → Project Settings → Database → Connection string (Transaction pooler, port 6543)
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Project Settings → API
+- `AUTH_SECRET` — `npx auth secret`로 생성
+
+### 2. DB 스키마 적용
+
+```bash
+npm run db:push       # 개발 중엔 push로 빠르게 동기화
+npm run db:seed       # 샘플 카테고리 + 상품 시드
+```
+
+마이그레이션 파일을 만들고 싶으면:
+
+```bash
+npm run db:generate
+npm run db:migrate
+```
+
+### 3. 개발 서버
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) 접속.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Drizzle Studio (DB GUI)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run db:studio
+```
 
-## Learn More
+## 폴더 구조
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├─ app/                 Next.js App Router (페이지, API)
+├─ components/
+│  └─ ui/               shadcn/ui 컴포넌트
+├─ lib/
+│  ├─ db/
+│  │  ├─ schema.ts      Drizzle 스키마 (단일 진실 공급원)
+│  │  ├─ index.ts       db 클라이언트
+│  │  └─ seed.ts        시드 스크립트
+│  ├─ supabase/
+│  │  ├─ client.ts      브라우저 클라이언트
+│  │  ├─ server.ts      서버 클라이언트
+│  │  └─ middleware.ts  세션 갱신
+│  └─ utils.ts
+└─ proxy.ts             Next 16 프록시 (구 middleware)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 배포 (Vercel)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. GitHub에 푸시
+2. Vercel에서 import
+3. Environment Variables에 `.env.local`과 동일한 키 등록 (`AUTH_URL`은 배포 도메인으로 변경)
+4. 자동 배포
 
-## Deploy on Vercel
+## TODO (다음 단계)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] `/products` 목록 페이지 (Supabase Storage 이미지 연동)
+- [ ] `/products/[slug]` 상세
+- [ ] 장바구니 (Server Actions)
+- [ ] 로그인 (이메일 + 카카오)
+- [ ] 주문서 작성
+- [ ] 어드민 (`/admin` — `users.isAdmin` 체크)
+- [ ] 결제 (PortOne v2 — 결제 붙일 시점에)
