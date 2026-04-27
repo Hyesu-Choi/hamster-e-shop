@@ -3,7 +3,7 @@ import { LoginForm } from "./login-form";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata = {
-  title: "로그인 | 햄스터 샵",
+  title: "로그인 | mochiHam",
 };
 
 export default async function LoginPage() {

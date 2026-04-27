@@ -74,6 +74,16 @@ export const orders = pgTable("orders", {
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
+export const notices = pgTable("notices", {
+  id: uuid().primaryKey().defaultRandom(),
+  title: text().notNull(),
+  content: text().notNull(),
+  isPinned: boolean().notNull().default(false),
+  isPublished: boolean().notNull().default(true),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});
+
 export const orderItems = pgTable("order_items", {
   id: uuid().primaryKey().defaultRandom(),
   orderId: uuid()

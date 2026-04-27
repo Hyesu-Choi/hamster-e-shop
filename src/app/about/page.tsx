@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "브랜드 소개 | 햄스터 샵",
+  title: "브랜드 소개 | mochiHam",
 };
 
 export default function AboutPage() {
@@ -8,7 +8,7 @@ export default function AboutPage() {
       <h1 className="text-3xl font-bold">브랜드 소개</h1>
       <div className="mt-8 space-y-4 leading-relaxed">
         <p>
-          햄스터 샵은 작은 가족 구성원에게 가장 좋은 것만 전하기 위해
+          mochiHam은 작은 가족 구성원에게 가장 좋은 것만 전하기 위해
           시작되었습니다.
         </p>
         <p>

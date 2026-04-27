@@ -8,7 +8,7 @@ import { formatKrw } from "@/lib/format";
 import { CheckoutForm } from "./checkout-form";
 
 export const metadata = {
-  title: "주문서 | 햄스터 샵",
+  title: "주문서 | mochiHam",
 };
 
 export default async function CheckoutPage() {

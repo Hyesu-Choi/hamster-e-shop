@@ -2,7 +2,7 @@ import { getCategories } from "@/lib/db/queries";
 import { CategoryTabs } from "./category-tabs";
 
 export const metadata = {
-  title: "상품 | 햄스터 샵",
+  title: "상품 | mochiHam",
 };
 
 export default async function CatalogLayout({

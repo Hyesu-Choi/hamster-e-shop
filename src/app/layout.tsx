@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NoticeBanner } from "@/components/notice-banner";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
@@ -15,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "햄스터 샵",
+  title: "mochiHam",
   description: "햄스터 사료 · 베딩 · 장난감 · 케이지",
 };
 
@@ -33,6 +34,7 @@ export default function RootLayout({
         className="min-h-full flex flex-col"
         suppressHydrationWarning
       >
+        <NoticeBanner />
         <SiteHeader />
         {children}
         <SiteFooter />

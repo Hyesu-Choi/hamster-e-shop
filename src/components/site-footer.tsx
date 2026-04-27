@@ -15,6 +15,7 @@ const linkSections = [
     title: "고객 지원",
     links: [
       { href: "/about", label: "브랜드 소개" },
+      { href: "/notices", label: "공지사항" },
       { href: "/orders", label: "주문 조회" },
       { href: "mailto:care.it@rideoffice.kr", label: "문의하기" },
     ],
@@ -37,7 +38,7 @@ export function SiteFooter() {
           <div className="col-span-2 sm:col-span-1">
             <Link href="/" className="flex items-center gap-2">
               <span className="text-2xl">🐹</span>
-              <span className="font-bold tracking-tight">햄스터 샵</span>
+              <span className="font-bold tracking-tight">mochiHam</span>
             </Link>
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
               우리 햄찌의 건강한 하루를 위한
@@ -67,7 +68,7 @@ export function SiteFooter() {
         <hr className="my-8" />
 
         <div className="text-muted-foreground flex flex-col items-start justify-between gap-3 text-xs sm:flex-row sm:items-center">
-          <p>© {new Date().getUTCFullYear()} 햄스터 샵. All rights reserved.</p>
+          <p>© {new Date().getUTCFullYear()} mochiHam. All rights reserved.</p>
           <p>care.it@rideoffice.kr</p>
         </div>
       </div>

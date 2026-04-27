@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 
 export const metadata = {
-  title: "어드민 | 햄스터 샵",
+  title: "어드민 | mochiHam",
 };
 
 export const dynamic = "force-dynamic";
@@ -41,6 +41,12 @@ export default async function AdminLayout({
             className="hover:bg-muted block rounded px-3 py-2"
           >
             주문
+          </Link>
+          <Link
+            href="/admin/notices"
+            className="hover:bg-muted block rounded px-3 py-2"
+          >
+            공지사항
           </Link>
         </nav>
       </aside>

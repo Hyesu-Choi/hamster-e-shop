@@ -12,7 +12,7 @@ type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ placed?: string }>;
 
 export const metadata = {
-  title: "주문 상세 | 햄스터 샵",
+  title: "주문 상세 | mochiHam",
 };
 
 export default async function OrderDetailPage({

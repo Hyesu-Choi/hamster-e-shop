@@ -13,8 +13,9 @@ export async function SiteHeader() {
     <header className="bg-background/85 sticky top-0 z-40 border-b backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="text-2xl">🐹</span>
-          <span className="text-lg font-bold tracking-tight">햄스터 샵</span>
+          <span className="text-lg font-extrabold tracking-tight">
+            mochiHam
+          </span>
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
@@ -32,6 +33,12 @@ export async function SiteHeader() {
               주문내역
             </Link>
           )}
+          <Link
+            href="/notices"
+            className="hover:text-primary text-foreground/80 transition"
+          >
+            공지사항
+          </Link>
           <Link
             href="/about"
             className="hover:text-primary text-foreground/80 transition"

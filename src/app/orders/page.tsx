@@ -8,7 +8,7 @@ import { formatDateTime, formatKrw } from "@/lib/format";
 import { ORDER_STATUS_LABEL, statusBadgeClass } from "@/lib/order-status";
 
 export const metadata = {
-  title: "주문 내역 | 햄스터 샵",
+  title: "주문 내역 | mochiHam",
 };
 
 export const dynamic = "force-dynamic";

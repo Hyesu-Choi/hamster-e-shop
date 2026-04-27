@@ -8,7 +8,7 @@ import { formatKrw } from "@/lib/format";
 import { removeFromCart, updateCartQuantity } from "./actions";
 
 export const metadata = {
-  title: "장바구니 | 햄스터 샵",
+  title: "장바구니 | mochiHam",
 };
 
 export default async function CartPage() {

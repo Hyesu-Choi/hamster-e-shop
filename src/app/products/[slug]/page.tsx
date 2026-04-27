@@ -23,9 +23,9 @@ type Params = Promise<{ slug: string }>;
 export async function generateMetadata({ params }: { params: Params }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);
-  if (!product) return { title: "상품 없음 | 햄스터 샵" };
+  if (!product) return { title: "상품 없음 | mochiHam" };
   return {
-    title: `${product.name} | 햄스터 샵`,
+    title: `${product.name} | mochiHam`,
     description: product.description ?? undefined,
   };
 }

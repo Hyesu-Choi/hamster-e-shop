@@ -3,6 +3,7 @@ import { db } from "./index";
 import {
   cartItems,
   categories,
+  notices,
   orderItems,
   orders,
   products,
@@ -72,6 +73,33 @@ export async function getCartItems(userId: string) {
     .innerJoin(products, eq(cartItems.productId, products.id))
     .where(eq(cartItems.userId, userId))
     .orderBy(desc(cartItems.createdAt));
+}
+
+export async function getPublishedNotices() {
+  return db
+    .select()
+    .from(notices)
+    .where(eq(notices.isPublished, true))
+    .orderBy(desc(notices.isPinned), desc(notices.createdAt));
+}
+
+export async function getNoticeById(id: string) {
+  const [row] = await db
+    .select()
+    .from(notices)
+    .where(and(eq(notices.id, id), eq(notices.isPublished, true)))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function getPinnedNotice() {
+  const [row] = await db
+    .select()
+    .from(notices)
+    .where(and(eq(notices.isPinned, true), eq(notices.isPublished, true)))
+    .orderBy(desc(notices.createdAt))
+    .limit(1);
+  return row ?? null;
 }
 
 export async function getUserOrders(userId: string) {
