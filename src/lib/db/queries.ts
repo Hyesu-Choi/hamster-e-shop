@@ -6,6 +6,7 @@ import {
   notices,
   orderItems,
   orders,
+  productImages,
   products,
 } from "./schema";
 
@@ -166,5 +167,31 @@ export async function getProductBySlug(slug: string) {
     .where(and(eq(products.slug, slug), eq(products.isPublished, true)))
     .limit(1);
 
-  return row;
+  if (!row) return null;
+
+  const extras = await db
+    .select({
+      id: productImages.id,
+      url: productImages.url,
+      alt: productImages.alt,
+    })
+    .from(productImages)
+    .where(eq(productImages.productId, row.id))
+    .orderBy(productImages.position, productImages.createdAt);
+
+  const images: { id: string; url: string; alt: string | null }[] = [];
+  if (row.imageUrl) {
+    images.push({ id: "primary", url: row.imageUrl, alt: row.name });
+  }
+  for (const e of extras) images.push(e);
+
+  return { ...row, images };
+}
+
+export async function getProductImages(productId: string) {
+  return db
+    .select()
+    .from(productImages)
+    .where(eq(productImages.productId, productId))
+    .orderBy(productImages.position, productImages.createdAt);
 }

@@ -48,6 +48,24 @@ export const products = pgTable("products", {
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
+export const productImages = pgTable("product_images", {
+  id: uuid().primaryKey().defaultRandom(),
+  productId: uuid()
+    .notNull()
+    .references(() => products.id, { onDelete: "cascade" }),
+  url: text().notNull(),
+  alt: text(),
+  position: integer().notNull().default(0),
+  createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+});
+
+export const productImagesRelations = relations(productImages, ({ one }) => ({
+  product: one(products, {
+    fields: [productImages.productId],
+    references: [products.id],
+  }),
+}));
+
 export const cartItems = pgTable("cart_items", {
   id: uuid().primaryKey().defaultRandom(),
   userId: uuid()

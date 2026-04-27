@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { products } from "@/lib/db/schema";
+import { productImages, products } from "@/lib/db/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const PRODUCT_BUCKET = "products";
@@ -166,4 +166,57 @@ export async function deleteProduct(formData: FormData) {
   await db.delete(products).where(eq(products.id, id));
   revalidatePath("/admin/products");
   revalidatePath("/products");
+}
+
+const addImageSchema = z.object({
+  productId: z.uuid(),
+  url: z.url(),
+  alt: z.string().max(200).optional(),
+});
+
+export async function addProductImage(
+  formData: FormData,
+): Promise<{ error?: string }> {
+  await requireAdmin();
+  const parsed = addImageSchema.safeParse({
+    productId: formData.get("productId"),
+    url: formData.get("url"),
+    alt: formData.get("alt")?.toString() || undefined,
+  });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const existing = await db
+    .select({ position: productImages.position })
+    .from(productImages)
+    .where(eq(productImages.productId, parsed.data.productId));
+  const nextPosition =
+    existing.length === 0
+      ? 0
+      : Math.max(...existing.map((e) => e.position)) + 1;
+
+  await db.insert(productImages).values({
+    productId: parsed.data.productId,
+    url: parsed.data.url,
+    alt: parsed.data.alt ?? null,
+    position: nextPosition,
+  });
+
+  revalidatePath(`/admin/products/${parsed.data.productId}/edit`);
+  revalidatePath("/products", "layout");
+  return {};
+}
+
+export async function deleteProductImage(formData: FormData) {
+  await requireAdmin();
+  const id = formData.get("id")?.toString();
+  const productId = formData.get("productId")?.toString();
+  if (!id) return;
+
+  await db.delete(productImages).where(eq(productImages.id, id));
+  if (productId) {
+    revalidatePath(`/admin/products/${productId}/edit`);
+  }
+  revalidatePath("/products", "layout");
 }

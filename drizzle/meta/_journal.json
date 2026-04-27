@@ -15,6 +15,13 @@
       "when": 1777266607483,
       "tag": "0001_small_vapor",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777282753733,
+      "tag": "0002_furry_kate_bishop",
+      "breakpoints": true
     }
   ]
 }

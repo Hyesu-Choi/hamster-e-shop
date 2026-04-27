@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartForm } from "@/components/add-to-cart-form";
+import { ProductGallery } from "@/components/product-gallery";
 import { getCurrentUser } from "@/lib/auth";
 import { getProductBySlug } from "@/lib/db/queries";
 import { formatKrw } from "@/lib/format";
@@ -69,23 +70,22 @@ export default async function ProductDetailPage({
       </nav>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <div
-          className={`relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-linear-to-br ${gradient}`}
-        >
-          {product.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={product.imageUrl}
-              alt={product.name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-9xl drop-shadow-sm">
-              {categoryEmoji[product.categorySlug ?? ""] ?? "🐹"}
-            </span>
-          )}
+        <div className="relative">
+          <ProductGallery
+            images={product.images}
+            productName={product.name}
+            fallback={
+              <div
+                className={`flex h-full w-full items-center justify-center bg-linear-to-br ${gradient}`}
+              >
+                <span className="text-9xl drop-shadow-sm">
+                  {categoryEmoji[product.categorySlug ?? ""] ?? "🐹"}
+                </span>
+              </div>
+            }
+          />
           {soldOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-2xl bg-black/40 backdrop-blur-sm">
               <span className="rounded-full bg-white/95 px-4 py-1.5 text-sm font-semibold">
                 품절
               </span>

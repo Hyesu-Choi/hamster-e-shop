@@ -2,9 +2,10 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductForm } from "../../product-form";
 import { updateProduct } from "../../actions";
+import { ProductImagesManager } from "./product-images-manager";
 import { db } from "@/lib/db";
 import { products } from "@/lib/db/schema";
-import { getCategories } from "@/lib/db/queries";
+import { getCategories, getProductImages } from "@/lib/db/queries";
 
 type Params = Promise<{ id: string }>;
 
@@ -15,7 +16,7 @@ export default async function EditProductPage({
 }) {
   const { id } = await params;
 
-  const [product, categories] = await Promise.all([
+  const [product, categories, images] = await Promise.all([
     db
       .select()
       .from(products)
@@ -23,6 +24,7 @@ export default async function EditProductPage({
       .limit(1)
       .then((rows) => rows[0]),
     getCategories(),
+    getProductImages(id),
   ]);
 
   if (!product) notFound();
@@ -30,8 +32,8 @@ export default async function EditProductPage({
   const action = updateProduct.bind(null, id);
 
   return (
-    <main>
-      <h1 className="mb-6 text-2xl font-bold">상품 편집</h1>
+    <main className="space-y-8">
+      <h1 className="text-2xl font-bold">상품 편집</h1>
       <ProductForm
         action={action}
         categories={categories}
@@ -47,6 +49,7 @@ export default async function EditProductPage({
           isPublished: product.isPublished,
         }}
       />
+      <ProductImagesManager productId={id} initialImages={images} />
     </main>
   );
 }
